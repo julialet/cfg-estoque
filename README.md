@@ -77,7 +77,9 @@ demo/
 
 ## 👩‍💻 Desenvolvido por
 
-Julia Letícia - [GitHub](https://github.com/julialet)
+Julia Hille
+Breno Werlang
+Eduarda Petzinger
 
 ## 📄 Licença
 
