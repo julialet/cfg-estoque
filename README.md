@@ -77,9 +77,7 @@ demo/
 
 ## 👩‍💻 Desenvolvido por
 
-Julia Hille
-Breno Werlang
-Eduarda Petzinger
+Julia Hille - Breno Werlang - Eduarda Petzinger
 
 ## 📄 Licença
 
