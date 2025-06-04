@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Equipamentos</title></head>
+<body>
+<h1>Equipamentos</h1>
+<form th:action="@{/equipamentos}" method="post">
+    Nome: <input type="text" name="nome"/><br/>
+    Descrição: <input type="text" name="descricao"/><br/>
+    <button type="submit">Salvar</button>
+</form>
+<ul>
+    <li th:each="equip : ${equipamentos}" th:text="${equip.nome + ' - ' + equip.descricao}"></li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Controle de Equipamentos</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Hidden message fields for JavaScript -->
+    <input type="hidden" id="mensagem" th:value="${mensagem}">
+    <input type="hidden" id="tipoMensagem" th:value="${tipoMensagem}">
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-tools"></i>
+                Controle de Equipamentos
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/equipamentos">
+                            <i class="bi bi-list-ul"></i> Equipamentos
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/usuarios">
+                            <i class="bi bi-people"></i> Usuários
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3">
+                <i class="bi bi-list-ul"></i>
+                Equipamentos
+            </h1>
+            <div class="d-flex gap-2">
+                <!-- Search Bar -->
+                <div class="search-container">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                            <i class="bi bi-search text-muted"></i>
+                        </span>
+                        <input type="text" id="searchInput" class="form-control border-start-0" 
+                               placeholder="Buscar equipamentos..." 
+                               onkeyup="filterEquipamentos()">
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="showAddForm()">
+                    <i class="bi bi-plus-circle"></i> Novo Equipamento
+                </button>
+            </div>
+        </div>
+
+        <!-- Add/Edit Equipment Form -->
+        <div class="equipment-form slide-form" id="addForm" style="display: none;" th:style="${equipamento != null && equipamento.id != null ? 'display: block;' : 'display: none;'}">
+            <h2 class="h5 mb-3" th:text="${equipamento != null && equipamento.id != null ? 'Editar Equipamento' : 'Adicionar Novo Equipamento'}"></h2>
+            <form th:action="@{/equipamentos}" method="post" class="row g-3">
+                <input type="hidden" name="id" th:value="${equipamento != null ? equipamento.id : ''}">
+                <div class="col-md-4">
+                    <label for="nome" class="form-label">Nome do Equipamento</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                        <input type="text" class="form-control" id="nome" name="nome" required
+                               th:value="${equipamento != null ? equipamento.nome : ''}"
+                               placeholder="Digite o nome do equipamento">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label for="descricao" class="form-label">Descrição</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                        <input type="text" class="form-control" id="descricao" name="descricao" required
+                               th:value="${equipamento != null ? equipamento.descricao : ''}"
+                               placeholder="Digite a descrição do equipamento">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label for="quantidade" class="form-label">Quantidade</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-box"></i></span>
+                        <input type="number" class="form-control" id="quantidade" name="quantidade" required
+                               th:value="${equipamento != null ? equipamento.quantidade : 0}"
+                               min="0"
+                               placeholder="0">
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi" th:classappend="${equipamento != null && equipamento.id != null ? 'bi-save' : 'bi-plus-circle'}"></i>
+                        <span th:text="${equipamento != null && equipamento.id != null ? 'Salvar' : 'Adicionar'}"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Equipment List -->
+        <div class="card table-container">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px">ID</th>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th style="width: 120px">Quantidade</th>
+                                <th style="width: 120px">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="equip : ${equipamentos}">
+                                <td th:text="${equip.id}" class="text-muted"></td>
+                                <td th:text="${equip.nome}"></td>
+                                <td th:text="${equip.descricao}"></td>
+                                <td>
+                                    <span class="badge bg-light text-dark border" th:text="${equip.quantidade}">
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a th:href="@{/equipamentos/editar/{id}(id=${equip.id})}" 
+                                           class="btn btn-sm btn-outline-primary btn-action" 
+                                           title="Editar">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger btn-action" 
+                                                title="Excluir"
+                                                data-bs-toggle="modal" 
+                                                th:data-bs-target="'#deleteModal' + ${equip.id}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Delete Confirmation Modal -->
+                                    <div class="modal fade" th:id="'deleteModal' + ${equip.id}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Confirmar Exclusão</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Tem certeza que deseja excluir o equipamento <strong th:text="${equip.nome}"></strong>?</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                    <form th:action="@{/equipamentos/excluir/{id}(id=${equip.id})}" method="post" class="d-inline">
+                                                        <button type="submit" class="btn btn-danger">Excluir</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(equipamentos)}">
+                                <td colspan="5" class="empty-state">
+                                    <i class="bi bi-inbox"></i>
+                                    Nenhum equipamento cadastrado
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="/js/app.js"></script>
+</body>
+</html>
